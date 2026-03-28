@@ -1,0 +1,163 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields:
+    //   - uid: string (required)
+    //   - displayName: string (required, < 50 chars)
+    //   - photoURL: string (optional, URL)
+    //   - bannerURL: string (optional, URL)
+    //   - role: string (required, enum: ['user', 'admin'])
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: movies
+    // Fields:
+    //   - id: string (required)
+    //   - title: string (required, < 200 chars)
+    //   - description: string (required, < 2000 chars)
+    //   - releaseDate: string (required, ISO 8601)
+    //   - rating: number (required, 0-10)
+    //   - genres: list (required, < 10 items)
+    //   - coverImage: string (required, URL)
+    //   - bannerImage: string (optional, URL)
+    //   - cast: list (required, < 50 items)
+    //   - director: string (required, < 100 chars)
+    //
+    // Collection: users/{userId}/list
+    // Fields:
+    //   - userId: string (required, matches parent)
+    //   - movieId: string (required)
+    //   - status: string (required, enum)
+    //   - score: number (optional, 0-10)
+    //   - updatedAt: timestamp (required)
+    //
+    // Collection: activities
+    // Fields:
+    //   - userId: string (required)
+    //   - userName: string (required)
+    //   - userAvatar: string (optional)
+    //   - action: string (required)
+    //   - movieTitle: string (required)
+    //   - movieId: string (required)
+    //   - timestamp: timestamp (required)
+    //   - likes: number (optional)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "narasimman1501@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUrl(url) {
+      return url is string && (url.matches("^https://.*") || url.matches("^http://.*"));
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return hasRequiredFields(['uid', 'displayName', 'role', 'createdAt']) &&
+             data.uid == request.auth.uid &&
+             data.displayName is string && data.displayName.size() < 50 &&
+             data.role in ['user', 'admin'] &&
+             data.createdAt is timestamp &&
+             (!('bannerUrl' in data) || data.bannerUrl is string && data.bannerUrl.size() < 1048576) &&
+             (!('updatedAt' in data) || data.updatedAt is string || data.updatedAt is timestamp);
+    }
+
+    function isValidMovie(data) {
+      return hasRequiredFields(['id', 'title', 'description', 'releaseDate', 'rating', 'genres', 'coverImage', 'director']) &&
+             data.title.size() < 200 &&
+             data.description.size() < 2000 &&
+             data.rating >= 0 && data.rating <= 10 &&
+             (!('ratingCount' in data) || data.ratingCount >= 0) &&
+             (!('totalRating' in data) || data.totalRating >= 0) &&
+             data.genres is list && data.genres.size() < 10 &&
+             isValidUrl(data.coverImage) &&
+             data.director.size() < 100;
+    }
+
+    function isValidUserListEntry(data, userId) {
+      return hasRequiredFields(['userId', 'movieId', 'status', 'updatedAt']) &&
+             data.userId == userId &&
+             data.status in ['PLANNING', 'WATCHING', 'COMPLETED', 'DROPPED'] &&
+             (!('score' in data) || (data.score >= 0 && data.score <= 10)) &&
+             data.updatedAt is timestamp;
+    }
+
+    function isValidActivity(data) {
+      return hasRequiredFields(['userId', 'userName', 'action', 'movieTitle', 'movieId', 'timestamp']) &&
+             data.userId == request.auth.uid &&
+             data.userName.size() < 50 &&
+             data.movieTitle.size() < 200 &&
+             data.timestamp is timestamp;
+    }
+
+    // ===============================================================
+    // Match Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && (request.resource.data.role == 'user' || isAdmin());
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && (request.resource.data.role == resource.data.role || isAdmin());
+      
+      match /list/{movieId} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(userId) && isValidUserListEntry(request.resource.data, userId);
+      }
+    }
+
+    match /movies/{movieId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidMovie(request.resource.data);
+      allow update: if (isAdmin() && isValidMovie(request.resource.data)) || 
+                     (isAuthenticated() && 
+                      isValidMovie(request.resource.data) && 
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'ratingCount', 'totalRating']));
+    }
+
+    match /activities/{activityId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidActivity(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

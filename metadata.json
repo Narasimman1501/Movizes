@@ -1,0 +1,5 @@
+{
+  "name": "Movizes",
+  "description": "A modern movie discovery and recommendation platform inspired by AniList, featuring AI-powered suggestions.",
+  "requestFramePermissions": []
+}
