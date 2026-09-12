@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user profile in the system.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The unique Firebase Auth ID." },
+        "displayName": { "type": "string", "description": "The user's display name." },
+        "photoURL": { "type": "string", "description": "The user's avatar URL." },
+        "bannerUrl": { "type": "string", "description": "The user's banner image URL (base64 or URL)." },
+        "role": { "type": "string", "enum": ["user", "admin"], "description": "User role." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the user joined." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last profile update." }
+      },
+      "required": ["uid", "displayName", "role", "createdAt"]
+    },
+    "Movie": {
+      "title": "Movie",
+      "description": "A movie in the database.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "releaseDate": { "type": "string" },
+        "rating": { "type": "number", "description": "Average community rating." },
+        "ratingCount": { "type": "number", "description": "Total number of ratings." },
+        "totalRating": { "type": "number", "description": "Sum of all ratings." },
+        "genres": { "type": "array", "items": { "type": "string" } },
+        "coverImage": { "type": "string" },
+        "bannerImage": { "type": "string" },
+        "cast": { "type": "array", "items": { "type": "string" } },
+        "director": { "type": "string" }
+      },
+      "required": ["id", "title", "description", "releaseDate", "rating", "genres", "coverImage", "director"]
+    },
+    "UserList": {
+      "title": "UserList",
+      "description": "A movie in a user's personal list.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "movieId": { "type": "string" },
+        "status": { "type": "string", "enum": ["PLANNING", "WATCHING", "COMPLETED", "DROPPED"] },
+        "score": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "movieId", "status", "updatedAt"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "A social activity entry.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userAvatar": { "type": "string" },
+        "action": { "type": "string" },
+        "movieTitle": { "type": "string" },
+        "movieId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "likes": { "type": "number" }
+      },
+      "required": ["userId", "userName", "action", "movieTitle", "movieId", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile data."
+    },
+    "/movies/{movieId}": {
+      "schema": "Movie",
+      "description": "Movie metadata."
+    },
+    "/users/{userId}/list/{movieId}": {
+      "schema": "UserList",
+      "description": "A user's movie list entries."
+    },
+    "/activities/{activityId}": {
+      "schema": "Activity",
+      "description": "Global activity feed."
+    }
+  }
+}
