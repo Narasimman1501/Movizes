@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { getCastDetails, getCastMovies } from '../services/movieService';
+<<<<<<< HEAD
+=======
+import { getPersonAISummary, PersonAISummary } from '../services/geminiService';
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
 import { Movie } from '../types';
 import MovieCard from '../components/MovieCard';
 import { ChevronLeft, Calendar, MapPin, Award, Star, Zap, Sparkles, User } from 'lucide-react';
@@ -11,6 +15,11 @@ export default function PersonDetail() {
   const [person, setPerson] = useState<any>(null);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
+<<<<<<< HEAD
+=======
+  const [aiSummary, setAiSummary] = useState<PersonAISummary | null>(null);
+  const [loadingAI, setLoadingAI] = useState(false);
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
 
   useEffect(() => {
     async function fetchData() {
@@ -23,6 +32,16 @@ export default function PersonDetail() {
       setPerson(personData);
       setMovies(moviesData);
       setLoading(false);
+<<<<<<< HEAD
+=======
+
+      if (personData) {
+        setLoadingAI(true);
+        const summary = await getPersonAISummary(personData.name, personData.biography);
+        setAiSummary(summary);
+        setLoadingAI(false);
+      }
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
     }
     fetchData();
   }, [id]);
@@ -140,6 +159,79 @@ export default function PersonDetail() {
 
           {/* Filmography */}
           <div className="lg:col-span-8 flex flex-col gap-16">
+<<<<<<< HEAD
+=======
+            {/* AI Summary Section */}
+            {(loadingAI || aiSummary) && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-surface/30 rounded-3xl border border-primary/20 p-8 relative overflow-hidden group"
+              >
+                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Sparkles size={120} className="text-primary" />
+                </div>
+                
+                <h2 className="text-2xl font-bold mb-8 flex items-center gap-3 relative z-10">
+                  <Sparkles size={24} className="text-primary animate-pulse" />
+                  AI Industry Insight
+                </h2>
+
+                {loadingAI ? (
+                  <div className="space-y-6 animate-pulse relative z-10">
+                    <div className="h-4 bg-surface/50 rounded w-full" />
+                    <div className="h-4 bg-surface/50 rounded w-5/6" />
+                    <div className="h-24 bg-surface/50 rounded w-full" />
+                  </div>
+                ) : aiSummary && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
+                          <Award size={16} />
+                          Notable Awards
+                        </h3>
+                        <ul className="space-y-3">
+                          {aiSummary.awards.map((award, i) => (
+                            <li key={i} className="text-sm text-text-muted flex items-start gap-3">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0" />
+                              {award}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
+                          <Zap size={16} />
+                          Career Highlights
+                        </h3>
+                        <ul className="space-y-3">
+                          {aiSummary.highlights.map((highlight, i) => (
+                            <li key={i} className="text-sm text-text-muted flex items-start gap-3">
+                              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0" />
+                              {highlight}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-background/40 p-6 rounded-2xl border border-border/30 h-fit">
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
+                        <Star size={16} />
+                        Style & Presence
+                      </h3>
+                      <p className="text-sm text-text-muted leading-relaxed italic">
+                        "{aiSummary.style}"
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
             <div>
               <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
                 <span className="w-1.5 h-8 bg-primary rounded-full" />

@@ -4,6 +4,10 @@ import MovieCard from '../components/MovieCard';
 import { Search as SearchIcon, X, ChevronDown, Filter, SlidersHorizontal, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { discoverMovies } from '../services/movieService';
+<<<<<<< HEAD
+=======
+import { getMovieVibes } from '../services/geminiService';
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
 import { Movie } from '../types';
 import { Sparkles } from 'lucide-react';
 

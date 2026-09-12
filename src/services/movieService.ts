@@ -1,11 +1,19 @@
 import { Movie } from "../types";
+<<<<<<< HEAD
+=======
+import { getTrendingMoviesWithAI, searchMoviesWithAI, getMovieDetailsWithAI, getPopularMoviesWithAI, getTopRatedMoviesWithAI, getMovieOTTReleaseDate } from "./geminiService";
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
 
 const TMDB_API_KEY = (import.meta as any).env?.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/original";
 
 export async function getTrendingMovies(): Promise<Movie[]> {
+<<<<<<< HEAD
   if (!TMDB_API_KEY) return [];
+=======
+  if (!TMDB_API_KEY) return await getTrendingMoviesWithAI();
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
 
   try {
     const response = await fetch(`${BASE_URL}/trending/movie/week?api_key=${TMDB_API_KEY}`);
@@ -14,12 +22,20 @@ export async function getTrendingMovies(): Promise<Movie[]> {
     return data.results.map(transformTMDBMovie);
   } catch (error) {
     console.error("Error fetching trending movies:", error);
+<<<<<<< HEAD
     return [];
+=======
+    return await getTrendingMoviesWithAI();
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
   }
 }
 
 export async function getPopularMovies(language: string = 'en'): Promise<Movie[]> {
+<<<<<<< HEAD
   if (!TMDB_API_KEY) return [];
+=======
+  if (!TMDB_API_KEY) return await getPopularMoviesWithAI();
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
 
   try {
     const url = language === 'en' 
@@ -32,12 +48,20 @@ export async function getPopularMovies(language: string = 'en'): Promise<Movie[]
     return data.results.map(transformTMDBMovie);
   } catch (error) {
     console.error("Error fetching popular movies:", error);
+<<<<<<< HEAD
     return [];
+=======
+    return await getPopularMoviesWithAI();
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
   }
 }
 
 export async function getTopRatedMovies(): Promise<Movie[]> {
+<<<<<<< HEAD
   if (!TMDB_API_KEY) return [];
+=======
+  if (!TMDB_API_KEY) return await getTopRatedMoviesWithAI();
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
 
   try {
     const response = await fetch(`${BASE_URL}/movie/top_rated?api_key=${TMDB_API_KEY}`);
@@ -46,12 +70,20 @@ export async function getTopRatedMovies(): Promise<Movie[]> {
     return data.results.map(transformTMDBMovie);
   } catch (error) {
     console.error("Error fetching top rated movies:", error);
+<<<<<<< HEAD
     return [];
+=======
+    return await getTopRatedMoviesWithAI();
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
   }
 }
 
 export async function searchMovies(query: string): Promise<Movie[]> {
+<<<<<<< HEAD
   if (!TMDB_API_KEY) return [];
+=======
+  if (!TMDB_API_KEY) return await searchMoviesWithAI(query);
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
 
   try {
     const response = await fetch(`${BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`);
@@ -60,12 +92,20 @@ export async function searchMovies(query: string): Promise<Movie[]> {
     return data.results.map(transformTMDBMovie);
   } catch (error) {
     console.error("Error searching movies:", error);
+<<<<<<< HEAD
     return [];
+=======
+    return await searchMoviesWithAI(query);
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
   }
 }
 
 export async function getMovieDetails(id: string): Promise<Movie | null> {
+<<<<<<< HEAD
   if (!TMDB_API_KEY) return null;
+=======
+  if (!TMDB_API_KEY) return await getMovieDetailsWithAI(id);
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
 
   try {
     const response = await fetch(`${BASE_URL}/movie/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates`);
@@ -80,12 +120,25 @@ export async function getMovieDetails(id: string): Promise<Movie | null> {
 
     if (digitalRelease) {
       movie.ottReleaseDate = digitalRelease.release_date.split('T')[0];
+<<<<<<< HEAD
+=======
+    } else {
+      // If not in TMDB, try AI search
+      const aiOttDate = await getMovieOTTReleaseDate(movie.title, movie.releaseDate.split('-')[0]);
+      if (aiOttDate) {
+        movie.ottReleaseDate = aiOttDate;
+      }
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
     }
 
     return movie;
   } catch (error) {
     console.error("Error fetching movie details:", error);
+<<<<<<< HEAD
     return null;
+=======
+    return await getMovieDetailsWithAI(id);
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
   }
 }
 
@@ -122,7 +175,11 @@ export async function getStreamingPlatforms(movieId: string, movieTitle: string,
       fr: 'FR'
     };
 
+<<<<<<< HEAD
     const detectedRegion = (navigator.language?.split('-')[1] || 'US').toUpperCase();
+=======
+    const detectedRegion = (navigator.language.split('-')[1] || 'US').toUpperCase();
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
     const userRegion = langToRegion[language] || detectedRegion;
     
     const regionData = data.results?.[userRegion] || data.results?.['IN'] || data.results?.['US'];
@@ -193,7 +250,13 @@ export async function discoverMovies(params: {
   query?: string;
 }): Promise<{ movies: Movie[]; totalPages: number }> {
   if (!TMDB_API_KEY) {
+<<<<<<< HEAD
     return { movies: [], totalPages: 0 };
+=======
+    // Fallback to trending if no API key
+    const movies = await getTrendingMoviesWithAI();
+    return { movies, totalPages: 1 };
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
   }
 
   try {

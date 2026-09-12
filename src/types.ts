@@ -21,6 +21,10 @@ export interface Movie {
   director: string;
   directorId?: string;
   directorProfilePath?: string | null;
+<<<<<<< HEAD
+=======
+  vibe?: string;
+>>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
   ottReleaseDate?: string;
 }
 
