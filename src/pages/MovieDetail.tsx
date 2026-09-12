@@ -407,15 +407,6 @@ export default function MovieDetail() {
                   </div>
                 )}
                 <span>{movie.releaseDate ? movie.releaseDate.split('-')[0] : 'TBA'}</span>
-<<<<<<< HEAD
-=======
-                {movie.vibe && (
-                  <span className="bg-accent/20 text-accent px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" />
-                    {movie.vibe}
-                  </span>
-                )}
->>>>>>> c02fa0eef4d94adb5d0596a17983d68d6e59cb5c
               </div>
             </div>
 
